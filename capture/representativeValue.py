@@ -51,7 +51,7 @@ def interquartile_range(datas):
 
 def geometrical_mean(datas):
   datas.sort() #昇順に並べ替え
-  datas_len = len(datas) #データ数  
+  datas_len = len(datas) #データ数
   Infinite_product = 1
   for data in datas:
     Infinite_product = data * Infinite_product
@@ -81,13 +81,13 @@ def standard_deviation(datas):
   standard_deviation_value = pow(variance_value,1/2)
   return standard_deviation_value
 
-datas1 = [26,24,21,19,19,18.5,18,18,18,15,14,13,12,12,11,8,6,6,6,2]
-print(sum(datas1))
-print(average(datas1))
-print(median(datas1))
-print(mode(datas1))
-print(variance(datas1))
-print(standard_deviation(datas1))
+# datas1 = [26,24,21,19,19,18.5,18,18,18,15,14,13,12,12,11,8,6,6,6,2]
+# print(sum(datas1))
+# print(average(datas1))
+# print(median(datas1))
+# print(mode(datas1))
+# print(variance(datas1))
+# print(standard_deviation(datas1))
 
 
 # C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\capture
@@ -112,7 +112,7 @@ print(standard_deviation(datas1))
 #   |a |a |a |
 
 # 5. 度数分布表 eX 株の前日比と度数（重複数）
-#     1. 階級分け 
+#     1. 階級分け
 #         1. スタージェスの公式 1+3.3\*logN
 #     1. 階級平均値（中点）
 #     1. 度数
@@ -126,7 +126,7 @@ print(standard_deviation(datas1))
 # 7. ローレンツ曲線  不平等度を計測する 累計相対所得等
 #   ジニ係数  = 1-ローレンツ曲線下の多角形面積/三角形面積  ＝２\*{相対順位と相対所得の積の総和} - n+1/n
 
-# 8. 切り落とし平均  安定特性値の１つ　（cf.中央値） 
+# 8. 切り落とし平均  安定特性値の１つ　（cf.中央値）
 #   最大値と最小値とその周辺を切り落とした平均値  スポーツ採点等
 # 9. 幾何平均 （cf.平均値）  観測値の積を求め、ｎ乗根とする 利子率の平均等（MMCmoney market certificate 金利の上限と連動する預金）1年目～3年目の金利が違う場合、同じ増加率とみなす
 # 10. 移動平均  時系列データで特有な変化を考慮しないよう  四半期報
