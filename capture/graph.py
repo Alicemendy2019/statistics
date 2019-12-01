@@ -1,10 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import representativeValue as rv
 
 data = np.random.randint(0, 100, 30) #0から１００までの整数値を30個生成
 
-print(data)
-plt.hist(data) #ここを変える
+average_value = rv.average(data)
+
+fig,ax = plt.subplots()
+plt.plot(data) #ここを変える
+ax.axhline(average_value, ls='--', color='r')
+
 plt.show()
 
 """
