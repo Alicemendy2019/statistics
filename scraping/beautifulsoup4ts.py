@@ -7,8 +7,8 @@ urllib.request.urlopen関数でWebからHTMLファイルを取得して、
 そのオブジェクトに対して検索するなどして、
 必要な情報を抽出していく
 """
-url = r'https://www.atmarkit.co.jp/ait/articles/1910/18/news015.html'
-# url = r'https://news.yahoo.co.jp/topics/top-picks'
+# url = r'https://www.atmarkit.co.jp/ait/articles/1910/18/news015.html'
+url = r'https://news.yahoo.co.jp/topics/top-picks'
 res = request.urlopen(url)
 soup = BeautifulSoup(res)
 res.close()
