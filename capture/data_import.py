@@ -1,31 +1,59 @@
-
 import csv
 import representativeValue as rv #representativeValue.pyをrnという名前で読み込む .pyは不要
 import sys
 from operator import itemgetter
 
 ##########HEADER確認##########
+def check_header(fileName):
+	filename = fileName
+	with open(filename) as f:
+		r = csv.reader(f, delimiter=',')
+		rows = [l for l in r]
+		cnt = 0
+		for row in rows[0]:
+			print(str(cnt) + " : " + row)
+			cnt = cnt + 1
+
+def lineOneAMM(filename):
+	with open(filename) as f:
+		r = csv.reader(f, delimiter=',')
+		rows = [[int(ll) for ll in l] for l in r]
+		row = rows[0]
+		print('取り込んだデータ：'+str(row))
+		row.sort()
+		print('ソート後のデータ：'+str(row))
+		print('平均値：'+str(rv.average(row)))
+		print('中央値：'+str(rv.median(row)))
+		print('最頻値：'+str(rv.mode(row)))
+
+#######ALL DATA########
+def show_alldata(filename):
+	with open(filename) as f:
+		print (f.read())
+
+######ALL DATA per 1########
+def show_colandrowcnt(filename):
+	with open(filename) as f:
+		r = csv.reader(f, delimiter=',')
+		colcnt = 0
+		rowcnt = 0
+		errcolflg = False
+		for row in r:
+			colcnt = colcnt + 1
+			if colcnt == 1:
+				rowcnt = len(row)
+			if rowcnt != len(row):
+				errcolflg = True
+		if errcolflg == True:
+			print('※相違列数あり')
+		print('列数:' + str(rowcnt))
+		print ('行数:' + str(colcnt))
+
 arg1 = sys.argv[1]
 filename = arg1
-with open(filename) as f:
-	r = csv.reader(f, delimiter=',')
-	rows = [l for l in r]
-	cnt = 0
-	for row in rows[0]:
-		print(str(cnt) + " : " + row)
-		cnt = cnt + 1
-		
-# filename = 'sampledata.csv'
-# with open(filename) as f:
-# 	r = csv.reader(f, delimiter=',')
-# 	rows = [[int(ll) for ll in l] for l in r]
-# 	row = rows[0]
-# 	print('取り込んだデータ：'+str(row))
-# 	row.sort()
-# 	print('ソート後のデータ：'+str(row))
-# 	print('平均値：'+str(rv.average(row)))
-# 	print('中央値：'+str(rv.median(row)))
-# 	print('最頻値：'+str(rv.mode(row)))
+# check_header(filename)
+show_colandrowcnt(filename)
+
 
 # text = ''
 # filename = '../data/全国消費実態調査平成21年全国消費実態調査全国貯蓄負債編.csv'
@@ -53,33 +81,6 @@ with open(filename) as f:
 
 # arg1 = sys.argv[1]
 
-#######ALL DATA########
-# with open(arg1) as f:
-# 	print (f.read())
-
-
-######ALL DATA per 1########
-# with open(arg1) as f:
-# 	r = csv.reader(f, delimiter=',')
-# 	for row in r:
-		# print('列数:' + str(len(row)))
-		# print (fn.average(int(row)))
-		# print (row)
-
-######ALL DATA per 1 in array########
-# with open(arg1) as f:
-# 	r = csv.reader(f, delimiter=',')
-# 	l = [[float(row2) for row2 in row] for row in r]
-	# print('行数:' + str(len(l)))
-	# print('列数:' + str(len(l[0])))
-	# print((l))
-	# print(l[1][1] + ' ' + l[5][1] + ' ' + l[10][1] + ' ' + l[11][1] + ' ' + l[13][1])
-	# for i in range(9,50,2):
-	# 	print(l[1][i] + ' ' + l[5][i] + ' ' + l[10][i] + ' ' + l[11][i] + ' ' + l[13][i])
-	# for ll in l:
-	# 	ll.sort()
-	# 	print (fn.average(ll))
-	# 	print (fn.median(ll))
 
 ######ALL DATA########
 # arg1 = sys.argv[1]
