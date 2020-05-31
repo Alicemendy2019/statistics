@@ -15,6 +15,10 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import sys
 
+# docCode_map=[
+# {'code':010,'name':''},
+# ]
+
 def get_topix_30():
 	url = r'https://stooq.com/t/?i=581'
 	data = pd.read_html(url,header=0)
@@ -27,7 +31,6 @@ def get_comp_stock_data(code,start=None,end=None):
 	if start is None:
 		today=dt.date.today()
 		last_year=str(int(today.year)-1)
-		# last_month=int(n.month)+1
 		month=str(today.month).rjust(2,'0')
 		day=str(today.day).rjust(2,'0')
 		start=last_year+month+day
@@ -41,12 +44,10 @@ def get_comp_stock_data(code,start=None,end=None):
 	i=1
 	url = url_3 + str(i)
 	data = pd.read_html(url,header=0)
-	# print(data)
-	# print(data[0])
 	print(data[0].head(10))
 	print(data[0].tail())
 	df_stock = data[1][5:-1]
-	
+
 	for i in range(2,12):
 	    url = url_3 + str(i)
 	    data = pd.read_html(url)
@@ -60,11 +61,7 @@ def get_comp_stock_data(code,start=None,end=None):
 	return df_stock,start,end
 
 def update_data(df_stock):
-	
-	# 行削除
-	# df_stock.query('Volume pd.isnull').index
-	# df_stock['2019-09-27']
-	# df_stock.set_index("Volume",inplace=True)
+
 	df_stock.dropna(subset=['Volume'],axis=0,inplace=True)
 	df_stock["Date2"] = [dt.datetime.strptime(i, "%d %b %Y") for i in df_stock["Date"]]
 	# indexの設定
@@ -88,7 +85,7 @@ if __name__ == '__main__':
 		end=sys.argv[3]
 	code=sys.argv[1]
 	df_stock,start,end=get_comp_stock_data(code,start,end)
-	
+
 	df_stock=update_data(df_stock)
 	df_stock.to_csv('{code}_{start}_{end}.csv'.format(code=code,start=start,end=end))
 	# プロット 縦軸（指定）×横軸（インデックス？）
