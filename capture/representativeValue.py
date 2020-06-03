@@ -81,9 +81,9 @@ def standard_deviation(datas):
   standard_deviation_value = pow(variance_value,1/2)
   return standard_deviation_value
 
-# datas1 = [26,24,21,19,19,18.5,18,18,18,15,14,13,12,12,11,8,6,6,6,2]
+datas1 = [26,24,21,19,19,18.5,18,18,18,15,14,13,12,12,11,8,6,6,6,2]
 # print(sum(datas1))
-# print(average(datas1))
+print(average(datas1))
 # print(median(datas1))
 # print(mode(datas1))
 # print(variance(datas1))
