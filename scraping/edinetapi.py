@@ -65,26 +65,34 @@ def get_info(year,month):
 def save_detail_info(documents):
     endpoint1='https://disclosure.edinet-fsa.go.jp/api/v1/documents/'
     for document in documents:
-        endpoint=endpoint1+document
-        params={
-            'type':1
-        }
-        res=requests.get(endpoint,params=params,verify=False)
-        res.encoding = res.apparent_encoding
         filename = 'EDINET/zip/' + document + '.zip'
-        if res.status_code == 200:
-            with open(filename,'wb') as f:
-                for c in res.iter_content(chunk_size=1024):
-                    f.write(c)
+        if os.path.exists(filename) is False:
+            endpoint=endpoint1+document
+            params={
+                'type':1 #書類本文＋監査報告書＋XBRLファイル
+            }
+            res=requests.get(endpoint,params=params,verify=False)
+            res.encoding = res.apparent_encoding
+            
+            if res.status_code == 200:
+                with open(filename,'wb') as f:
+                    for c in res.iter_content(chunk_size=1024):
+                        f.write(c)
+            else:
+                print(res.status_code)
         else:
-            print(res.status_code)
-def show_ditail_info(docID):
+            print(filename+'は存在しています')
 
+def show_ditail_info(docID):
     filepath1='EDINET/zip/' + docID
     filepathS='EDINET/extractData/' + docID
-    print(filepath1)
-    data = zipfile.ZipFile(filepath1+ '.zip')
-    data.extractall(filepathS)
+    if os.path.exists(filepathS) is False:
+            # os.mkdir(filepathS)
+        print(filepath1)
+        data = zipfile.ZipFile(filepath1+ '.zip')
+        data.extractall(filepathS)
+    else:
+        print('data存在しています'+filepathS)
     filepath2=filepathS + '/XBRL/PublicDoc/'
     # filepath2='test' + '/XBRL/PublicDoc/'
     files=glob.glob(filepath2+'*.htm')
@@ -136,10 +144,10 @@ if __name__ == '__main__':
             else:
                 get_info(year,month)
         elif indata == '2':
-            documents = ['S100I9DG']
+            documents = ['S100IKPS']
             save_detail_info(documents)
         elif indata == '3':
-            docID='S100I9DG'
+            docID='S100IKPS'
             show_ditail_info(docID)
         elif indata == '4':
             year,month = get_ym()
@@ -152,3 +160,46 @@ if __name__ == '__main__':
         else:
             print('不正な入力です')
             sys.exit()
+
+"""
+四半期のXBRLは１１ファイル
+# https://www.fsa.go.jp/search/20160314/1b_1.pdf#search='%E3%82%BF%E3%82%AF%E3%82%BD%E3%83%8E%E3%83%9F+%E5%AE%9A%E7%BE%A9+%E6%A7%98%E5%BC%8F'
+
+"""
+
+# XBRLから情報を取得する（仮）
+# todo : 他の定義情報もkeys()で確認し取得
+from xbrl import XBRLParser
+# import codecs
+from edinet_xbrl.edinet_xbrl_parser import EdinetXbrlParser
+import csv
+
+f=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
+with open(f,encoding='utf8') as of:
+    pa=XBRLParser.parse(of)
+    context_ref_piriod = {}
+    for n in pa.find_all('xbrli:context',{'id':['Prior1YTDDuration','CurrentYTDDuration','Prior1YearDuration']}):
+        id=n.get_attribute_list('id')
+        child=n.findChildren(['xbrli:instant', 'xbrli:period'])
+        piriod=child[0].get_text().strip('\n').replace('\n',' ～ ')
+        context_ref_piriod[id[0]] = piriod
+        
+
+p=EdinetXbrlParser()
+f=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
+d=p.parse_file(f)
+rf = r"C:\Users\amepa\Documents\oracle\output\wnt_data.csv"
+with open(rf) as f:
+    ff = csv.reader(f)
+    for row in ff:
+        d2=d.get_data_list(row[2])
+        # print(d2)
+        if len(d2) == 0:
+            print(row[1] + ': None' )
+        else:
+            for rd in d2:
+                if rd.get_context_ref() in context_ref_piriod.keys():
+                    print(row[1] + ':' + rd.value + ':' + context_ref_piriod[rd.get_context_ref()])
+                else :
+                    print(row[1] + ':' + rd.value + ':' + rd.get_context_ref())
+                
