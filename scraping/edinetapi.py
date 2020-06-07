@@ -157,9 +157,11 @@ def parse_xbrl_data(file):
     with open(f,encoding='utf8') as of:
         pa=XBRLParser.parse(of)
         context_ref_piriod = {}
-        for n in pa.find_all('xbrli:context',{'id':['Prior1YTDDuration','CurrentYTDDuration','Prior1YearDuration']}):
+        # for n in pa.find_all('xbrli:context',{'id':['Prior1YTDDuration','CurrentYTDDuration','Prior1YearDuration']}):
+        for n in pa.find_all('xbrli:context'):
             id=n.get_attribute_list('id')
             child=n.findChildren(['xbrli:instant', 'xbrli:period'])
+            # if child.name ==
             piriod=child[0].get_text().strip('\n').replace('\n',' ～ ')
             context_ref_piriod[id[0]] = piriod
 
@@ -178,9 +180,11 @@ def parse_xbrl_data(file):
             else:
                 for rd in d2:
                     if rd.get_context_ref() in context_ref_piriod.keys():
-                        print(row[1] + ':' + rd.value + ':' + context_ref_piriod[rd.get_context_ref()])
+                        print(row[1] + ':' + str(rd.value) + ':' + context_ref_piriod[rd.get_context_ref()])
+                    elif rd is None:
+                        print(row[1] + ':' + 'None')
                     else :
-                        print(row[1] + ':' + rd.value + ':' + rd.get_context_ref())
+                        print(row[1] + ':' + str(rd.value) + ':' + rd.get_context_ref())
 
 if __name__ == '__main__':
     while True:
@@ -206,7 +210,8 @@ if __name__ == '__main__':
             else:
                 select_sec_data(year,month)
         elif indata == '5':
-            file=get_file()
+            # file=get_file()
+            file=r"C:\Users\yohei\AppData\Local\Git\statistics\scraping\EDINET\extractData\S100I9DG\XBRL\PublicDoc\jpcrp030000-asr-001_E26815-000_2019-12-31_01_2020-03-23.xbrl"
             if file is None:
                 pass
             # elif :
