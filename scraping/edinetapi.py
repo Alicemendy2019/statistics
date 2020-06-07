@@ -73,7 +73,7 @@ def save_detail_info(documents):
             }
             res=requests.get(endpoint,params=params,verify=False)
             res.encoding = res.apparent_encoding
-            
+
             if res.status_code == 200:
                 with open(filename,'wb') as f:
                     for c in res.iter_content(chunk_size=1024):
@@ -133,10 +133,60 @@ def get_ym():
         print(month)
         return 'err',''
 
+def get_file():
+    abs_file=input('ファイルをフルパスで入力してください')
+    root, ext = os.path.splitext(abs_file)
+    if ext == '.xbrl':
+        return abs_file
+    else:
+        print(os.path.isfile(abs_file))
+        print(ext)
+        print('xbrlを入力してください')
+
+def parse_xbrl_data(file):
+    # XBRLから利益等情報を取得する（仮）
+    # todo : 他の定義情報もkeys()で確認し取得
+    from xbrl import XBRLParser
+    # import codecs
+    from edinet_xbrl.edinet_xbrl_parser import EdinetXbrlParser
+    import csv
+    # XBRLファイルを開いて定義情報を取得
+    # f=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
+    f=file
+    print(f)
+    with open(f,encoding='utf8') as of:
+        pa=XBRLParser.parse(of)
+        context_ref_piriod = {}
+        for n in pa.find_all('xbrli:context',{'id':['Prior1YTDDuration','CurrentYTDDuration','Prior1YearDuration']}):
+            id=n.get_attribute_list('id')
+            child=n.findChildren(['xbrli:instant', 'xbrli:period'])
+            piriod=child[0].get_text().strip('\n').replace('\n',' ～ ')
+            context_ref_piriod[id[0]] = piriod
+
+    # 取得したい情報をDBから取得したCSVをもとに抽出
+    p=EdinetXbrlParser()
+    # f=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
+    d=p.parse_file(f)
+    rf = r"EDINET\template\wnt_data.csv"
+    with open(rf) as f:
+        ff = csv.reader(f)
+        for row in ff:
+            d2=d.get_data_list(row[2])
+            # print(d2)
+            if len(d2) == 0:
+                print(row[1] + ': None' )
+            else:
+                for rd in d2:
+                    if rd.get_context_ref() in context_ref_piriod.keys():
+                        print(row[1] + ':' + rd.value + ':' + context_ref_piriod[rd.get_context_ref()])
+                    else :
+                        print(row[1] + ':' + rd.value + ':' + rd.get_context_ref())
+
 if __name__ == '__main__':
     while True:
         indata=input('数値で入力してください\n1:月ごとの開示請求情報取得\n2:詳細データ保存\n\
-3:詳細データ表示\n4:証券コード有データ取得保存\n9:終了\n---> ')
+3:詳細データ表示\n4:証券コード有データ取得保存\n\
+5:XRBLファイル情報取得\n9:終了\n---> ')
         if indata == '1':
             year,month = get_ym()
             if year == 'err':
@@ -155,6 +205,14 @@ if __name__ == '__main__':
                 pass
             else:
                 select_sec_data(year,month)
+        elif indata == '5':
+            file=get_file()
+            if file is None:
+                pass
+            # elif :
+                file=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
+            else:
+                parse_xbrl_data(file)
         elif indata == '9':
             sys.exit()
         else:
@@ -166,40 +224,3 @@ if __name__ == '__main__':
 # https://www.fsa.go.jp/search/20160314/1b_1.pdf#search='%E3%82%BF%E3%82%AF%E3%82%BD%E3%83%8E%E3%83%9F+%E5%AE%9A%E7%BE%A9+%E6%A7%98%E5%BC%8F'
 
 """
-
-# XBRLから情報を取得する（仮）
-# todo : 他の定義情報もkeys()で確認し取得
-from xbrl import XBRLParser
-# import codecs
-from edinet_xbrl.edinet_xbrl_parser import EdinetXbrlParser
-import csv
-
-f=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
-with open(f,encoding='utf8') as of:
-    pa=XBRLParser.parse(of)
-    context_ref_piriod = {}
-    for n in pa.find_all('xbrli:context',{'id':['Prior1YTDDuration','CurrentYTDDuration','Prior1YearDuration']}):
-        id=n.get_attribute_list('id')
-        child=n.findChildren(['xbrli:instant', 'xbrli:period'])
-        piriod=child[0].get_text().strip('\n').replace('\n',' ～ ')
-        context_ref_piriod[id[0]] = piriod
-        
-
-p=EdinetXbrlParser()
-f=r"C:\Users\amepa\Documents\仕事\beyoufree\Python\statistics\scraping\EDINET\extractData\S100IKPS\XBRL\PublicDoc\jpcrp040300-q1r-001_E26815-000_2020-03-31_01_2020-05-14.xbrl"
-d=p.parse_file(f)
-rf = r"C:\Users\amepa\Documents\oracle\output\wnt_data.csv"
-with open(rf) as f:
-    ff = csv.reader(f)
-    for row in ff:
-        d2=d.get_data_list(row[2])
-        # print(d2)
-        if len(d2) == 0:
-            print(row[1] + ': None' )
-        else:
-            for rd in d2:
-                if rd.get_context_ref() in context_ref_piriod.keys():
-                    print(row[1] + ':' + rd.value + ':' + context_ref_piriod[rd.get_context_ref()])
-                else :
-                    print(row[1] + ':' + rd.value + ':' + rd.get_context_ref())
-                
